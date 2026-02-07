@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html>
+
+<html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Calculadora de Média GeralzonaV2</title>
+  <title>Calculadora de Média GeralzonaV4</title>
 
   <style>
     :root{
@@ -262,8 +264,9 @@
       color:#222;
     }
   </style>
-</head>
 
+  
+</head>
 <body>
   <div class="topbar">
     <div class="selectors">
@@ -400,285 +403,286 @@
   </div>
 
   <!-- IMPORTS + APP (MODULE) -->
-  <script type="module">
+
+  <script type=module>
     import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
 
-    /* ====== CONFIG ====== */
-    const SUPABASE_URL = 'https://msockegtgxnkrdmywcss.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_fuY9riiCPUOCdTu0rGLlMw_OSan8Ewr';
-    const EDGE_FN_URL = `${SUPABASE_URL}/functions/v1/calc-admin`;
+/* ====== CONFIG ====== */
+const SUPABASE_URL = 'https://msockegtgxnkrdmywcss.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_fuY9riiCPUOCdTu0rGLlMw_OSan8Ewr';
+const EDGE_FN_URL = `${SUPABASE_URL}/functions/v1/calc-admin`;
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const selPeriod = document.getElementById('selPeriod');
-    const btnChangePass = document.getElementById('btnChangePass');
-    const passModal = document.getElementById('passModal');
-    const oldPass = document.getElementById('oldPass');
-    const newPass = document.getElementById('newPass');
-    const btnConfirmPass = document.getElementById('btnConfirmPass');
-    const btnCancelPass = document.getElementById('btnCancelPass');
+const selPeriod = document.getElementById('selPeriod');
+const btnChangePass = document.getElementById('btnChangePass');
+const passModal = document.getElementById('passModal');
+const oldPass = document.getElementById('oldPass');
+const newPass = document.getElementById('newPass');
+const btnConfirmPass = document.getElementById('btnConfirmPass');
+const btnCancelPass = document.getElementById('btnCancelPass');
 
-    /* ====== STATE ====== */
-    let calc = null; // { title, schema }
-    let teacherToken = localStorage.getItem('teacherToken') || '';
-    let teacherUser = localStorage.getItem('teacherUser') || '';
+/* ====== STATE ====== */
+let calc = null; // { title, schema }
+let teacherToken = localStorage.getItem('teacherToken') || '';
+let teacherUser = localStorage.getItem('teacherUser') || '';
 
-    /* ====== ELEMENTS ====== */
-    const selGrade = document.getElementById('selGrade');
-    const selSubject = document.getElementById('selSubject');
-    const calcTitle = document.getElementById('calcTitle');
-    const calcForm = document.getElementById('calcForm');
-    const resultado = document.getElementById('resultado');
+/* ====== ELEMENTS ====== */
+const selGrade = document.getElementById('selGrade');
+const selSubject = document.getElementById('selSubject');
+const calcTitle = document.getElementById('calcTitle');
+const calcForm = document.getElementById('calcForm');
+const resultado = document.getElementById('resultado');
 
-    const params = new URLSearchParams(window.location.search);
-    const lockedGrade = params.get("grade");    // ex: "9o"
-    const lockedSubject = params.get("subject");// ex: "mat"
+const params = new URLSearchParams(window.location.search);
+const lockedGrade = params.get("grade");    // ex: "9o"
+const lockedSubject = params.get("subject");// ex: "mat"
 
-    const btnLogin = document.getElementById('btnLogin');
-    const teacherBar = document.getElementById('teacherBar');
-    const btnEdit = document.getElementById('btnEdit');
-    const btnLogout = document.getElementById('btnLogout');
+const btnLogin = document.getElementById('btnLogin');
+const teacherBar = document.getElementById('teacherBar');
+const btnEdit = document.getElementById('btnEdit');
+const btnLogout = document.getElementById('btnLogout');
 
-    const loginModal = document.getElementById('loginModal');
-    const loginUser = document.getElementById('loginUser');
-    const loginPass = document.getElementById('loginPass');
-    const btnConfirmLogin = document.getElementById('btnConfirmLogin');
-    const btnCancelLogin = document.getElementById('btnCancelLogin');
+const loginModal = document.getElementById('loginModal');
+const loginUser = document.getElementById('loginUser');
+const loginPass = document.getElementById('loginPass');
+const btnConfirmLogin = document.getElementById('btnConfirmLogin');
+const btnCancelLogin = document.getElementById('btnCancelLogin');
 
-    const editModal = document.getElementById('editModal');
-    const btnGrabLink = document.getElementById('btnGrabLink');
-    const btnCloseEdit = document.getElementById('btnCloseEdit');
-    const btnCancelEdit = document.getElementById('btnCancelEdit');
-    const btnSaveCalc = document.getElementById('btnSaveCalc');
-    const btnAddItem = document.getElementById('btnAddItem');
-    const editTitle = document.getElementById('editTitle');
-    const editScale = document.getElementById('editScale');
-    const itemsList = document.getElementById('itemsList');
+const editModal = document.getElementById('editModal');
+const btnGrabLink = document.getElementById('btnGrabLink');
+const btnCloseEdit = document.getElementById('btnCloseEdit');
+const btnCancelEdit = document.getElementById('btnCancelEdit');
+const btnSaveCalc = document.getElementById('btnSaveCalc');
+const btnAddItem = document.getElementById('btnAddItem');
+const editTitle = document.getElementById('editTitle');
+const editScale = document.getElementById('editScale');
+const itemsList = document.getElementById('itemsList');
 
-    document.getElementById('btnCalc').addEventListener('click', calcularMedia);
+document.getElementById('btnCalc').addEventListener('click', calcularMedia);
 
-    let teacherPerms = null; // [{grade:'9o', subject:'mat'}, ...]
+let teacherPerms = null; // [{grade:'9o', subject:'mat'}, ...]
 
-    /* ====== UI HELPERS ====== */
-    function openModal(el) {
-      el.style.display = 'flex';
+/* ====== UI HELPERS ====== */
+function openModal(el) {
+  el.style.display = 'flex';
+}
+function closeModal(el) {
+  el.style.display = 'none';
+}
+
+/* ====== NOTIFY MODAL (substitui alert) ====== */
+const notifyModal = document.getElementById("notifyModal");
+const notifyTitle = document.getElementById("notifyTitle");
+const notifyMsg = document.getElementById("notifyMsg");
+const btnCloseNotify = document.getElementById("btnCloseNotify");
+const btnOkNotify = document.getElementById("btnOkNotify");
+
+function notify(message, type = "warn", title) {
+  notifyModal.classList.remove("notify--error", "notify--success", "notify--warn", "notify--info");
+  notifyModal.classList.add(`notify--${type}`);
+
+  notifyTitle.textContent =
+    title || (type === "error" ? "Erro" : type === "success" ? "Sucesso" : type === "info" ? "Info" : "Aviso");
+
+  notifyMsg.textContent = String(message ?? "");
+  openModal(notifyModal);
+  setTimeout(() => btnOkNotify?.focus(), 0);
+}
+
+function closeNotify() { closeModal(notifyModal); }
+btnCloseNotify.addEventListener("click", closeNotify);
+btnOkNotify.addEventListener("click", closeNotify);
+
+// Fecha no ESC
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && notifyModal.style.display === "flex") closeNotify();
+});
+
+// Intercepta QUALQUER alert() do browser
+window.alert = (msg) => notify(msg, "warn", "Aviso");
+
+function setTeacherMode(on) {
+  teacherBar.classList.toggle("hidden", !on);
+  btnLogin.textContent = on ? `Professor: ${teacherUser}` : "Professor";
+
+  if (btnChangePass) {
+    btnChangePass.style.display = on ? "inline-block" : "none";
+  }
+}
+
+async function loadTeacherPermissions() {
+  if (!teacherToken) return null;
+
+  const r = await fetch(EDGE_FN_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${teacherToken}`,
+    },
+    body: JSON.stringify({ action: "list_permissions" }),
+  });
+
+  const raw = await r.text();
+  let j = {};
+  try { j = JSON.parse(raw); } catch { }
+
+  if (!r.ok) {
+    console.log("list_permissions FAIL:", r.status, raw);
+    return null;
+  }
+  return j.permissions || [];
+}
+
+function populateGradeSelectFromPerms(perms) {
+  const grades = [...new Set(perms.map(p => p.grade))].sort();
+  selGrade.innerHTML = grades.map(g => `<option value="${g}">${g.toUpperCase()}</option>`).join("");
+}
+
+async function populateSubjectSelectForGradeFromPerms(grade, perms) {
+  const allowedSubjects = new Set(perms.filter(p => p.grade === grade).map(p => p.subject));
+
+  const { data, error } = await supabase
+    .from("subjects")
+    .select("code,name,sort")
+    .eq("grade", grade)
+    .eq("active", true)
+    .order("sort", { ascending: true });
+
+  if (error || !data) {
+    selSubject.innerHTML = [...allowedSubjects].map(s => `<option value="${s}">${s.toUpperCase()}</option>`).join("");
+    return;
+  }
+
+  const filtered = data.filter(s => allowedSubjects.has(s.code));
+  selSubject.innerHTML = filtered.map(s => `<option value="${s.code}">${s.name}</option>`).join("");
+
+  const already = new Set(filtered.map(x => x.code));
+  [...allowedSubjects].forEach(code => {
+    if (!already.has(code)) {
+      selSubject.insertAdjacentHTML("beforeend", `<option value="${code}">${code.toUpperCase()}</option>`);
     }
-    function closeModal(el) {
-      el.style.display = 'none';
-    }
+  });
+}
 
-    /* ====== NOTIFY MODAL (substitui alert) ====== */
-    const notifyModal = document.getElementById("notifyModal");
-    const notifyTitle = document.getElementById("notifyTitle");
-    const notifyMsg = document.getElementById("notifyMsg");
-    const btnCloseNotify = document.getElementById("btnCloseNotify");
-    const btnOkNotify = document.getElementById("btnOkNotify");
+async function loadSubjectsForGrade() {
+  const grade = selGrade.value;
 
-    function notify(message, type = "warn", title) {
-      notifyModal.classList.remove("notify--error","notify--success","notify--warn","notify--info");
-      notifyModal.classList.add(`notify--${type}`);
+  const { data, error } = await supabase
+    .from('subjects')
+    .select('code, name, sort')
+    .eq('grade', grade)
+    .order('sort', { ascending: true });
 
-      notifyTitle.textContent =
-        title || (type === "error" ? "Erro" : type === "success" ? "Sucesso" : type === "info" ? "Info" : "Aviso");
+  if (error || !data?.length) {
+    selSubject.innerHTML = `<option value="">Sem disciplinas</option>`;
+    return;
+  }
 
-      notifyMsg.textContent = String(message ?? "");
-      openModal(notifyModal);
-      setTimeout(() => btnOkNotify?.focus(), 0);
-    }
+  const current = selSubject.value;
+  selSubject.innerHTML = data
+    .map((s) => `<option value="${s.code}">${s.name}</option>`)
+    .join('');
 
-    function closeNotify(){ closeModal(notifyModal); }
-    btnCloseNotify.addEventListener("click", closeNotify);
-    btnOkNotify.addEventListener("click", closeNotify);
+  if (current && data.some((s) => s.code === current)) {
+    selSubject.value = current;
+  }
+}
 
-    // Fecha no ESC
-    window.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && notifyModal.style.display === "flex") closeNotify();
-    });
+window.addEventListener("message", async (ev) => {
+  const msg = ev.data;
+  if (!msg || msg.type !== "SET_CONTEXT") return;
 
-    // Intercepta QUALQUER alert() do browser
-    window.alert = (msg) => notify(msg, "warn", "Aviso");
+  if (msg.grade) selGrade.value = msg.grade;
+  await loadSubjectsForGrade();
 
-    function setTeacherMode(on) {
-      teacherBar.classList.toggle("hidden", !on);
-      btnLogin.textContent = on ? `Professor: ${teacherUser}` : "Professor";
+  if (msg.subject) selSubject.value = msg.subject;
 
-      if (btnChangePass) {
-        btnChangePass.style.display = on ? "inline-block" : "none";
-      }
-    }
+  selGrade.disabled = true;
+  selSubject.disabled = true;
+  selGrade.style.opacity = "0.65";
+  selSubject.style.opacity = "0.65";
 
-    async function loadTeacherPermissions() {
-      if (!teacherToken) return null;
+  await loadCalculator();
+});
 
-      const r = await fetch(EDGE_FN_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${teacherToken}`,
-        },
-        body: JSON.stringify({ action: "list_permissions" }),
-      });
+function applyLockUI() {
+  const lockOn = !!(lockedGrade && lockedSubject);
 
-      const raw = await r.text();
-      let j = {};
-      try { j = JSON.parse(raw); } catch {}
+  if (lockOn) {
+    selGrade.value = lockedGrade;
+    selGrade.disabled = true;
+    selGrade.style.opacity = "0.65";
 
-      if (!r.ok) {
-        console.log("list_permissions FAIL:", r.status, raw);
-        return null;
-      }
-      return j.permissions || [];
-    }
+    selSubject.disabled = true;
+    selSubject.style.opacity = "0.65";
+  } else {
+    selGrade.disabled = false;
+    selGrade.style.opacity = "1";
+    selSubject.disabled = false;
+    selSubject.style.opacity = "1";
+  }
+}
 
-    function populateGradeSelectFromPerms(perms) {
-      const grades = [...new Set(perms.map(p => p.grade))].sort();
-      selGrade.innerHTML = grades.map(g => `<option value="${g}">${g.toUpperCase()}</option>`).join("");
-    }
+/* ====== LOGIN / LOGOUT ====== */
+btnLogin.addEventListener('click', () => {
+  openModal(loginModal);
+  setTimeout(() => loginUser.focus(), 50);
+});
 
-    async function populateSubjectSelectForGradeFromPerms(grade, perms) {
-      const allowedSubjects = new Set(perms.filter(p => p.grade === grade).map(p => p.subject));
+btnCancelLogin.addEventListener('click', () => closeModal(loginModal));
 
-      const { data, error } = await supabase
-        .from("subjects")
-        .select("code,name,sort")
-        .eq("grade", grade)
-        .eq("active", true)
-        .order("sort", { ascending: true });
+btnConfirmLogin.addEventListener('click', async () => {
+  const u = loginUser.value.trim();
+  const p = loginPass.value;
 
-      if (error || !data) {
-        selSubject.innerHTML = [...allowedSubjects].map(s => `<option value="${s}">${s.toUpperCase()}</option>`).join("");
-        return;
-      }
+  if (!u || !p) {
+    notify('Preencha usuário e senha.', "warn");
+    return;
+  }
 
-      const filtered = data.filter(s => allowedSubjects.has(s.code));
-      selSubject.innerHTML = filtered.map(s => `<option value="${s.code}">${s.name}</option>`).join("");
+  const r = await fetch(EDGE_FN_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action: 'login', username: u, password: p }),
+  });
 
-      const already = new Set(filtered.map(x => x.code));
-      [...allowedSubjects].forEach(code => {
-        if (!already.has(code)) {
-          selSubject.insertAdjacentHTML("beforeend", `<option value="${code}">${code.toUpperCase()}</option>`);
-        }
-      });
-    }
+  const raw = await r.text();
+  let j = {};
+  try { j = JSON.parse(raw); } catch { }
 
-    async function loadSubjectsForGrade() {
-      const grade = selGrade.value;
+  if (!r.ok) {
+    notify(
+      `HTTP ${r.status}\n` +
+      `RAW:\n${raw.slice(0, 600)}\n\n` +
+      `JSON.error: ${j.error || '(sem)'}\n` +
+      `JSON.detail: ${j.detail || '(sem)'}`,
+      "error",
+      "Falha no login"
+    );
+    return;
+  }
 
-      const { data, error } = await supabase
-        .from('subjects')
-        .select('code, name, sort')
-        .eq('grade', grade)
-        .order('sort', { ascending: true });
+  teacherToken = j.token;
+  teacherUser = j.username;
+  localStorage.setItem('teacherToken', teacherToken);
+  localStorage.setItem('teacherUser', teacherUser);
 
-      if (error || !data?.length) {
-        selSubject.innerHTML = `<option value="">Sem disciplinas</option>`;
-        return;
-      }
+  closeModal(loginModal);
+  setTeacherMode(true);
 
-      const current = selSubject.value;
-      selSubject.innerHTML = data
-        .map((s) => `<option value="${s.code}">${s.name}</option>`)
-        .join('');
-
-      if (current && data.some((s) => s.code === current)) {
-        selSubject.value = current;
-      }
-    }
-
-    window.addEventListener("message", async (ev) => {
-      const msg = ev.data;
-      if (!msg || msg.type !== "SET_CONTEXT") return;
-
-      if (msg.grade) selGrade.value = msg.grade;
-      await loadSubjectsForGrade();
-
-      if (msg.subject) selSubject.value = msg.subject;
-
-      selGrade.disabled = true;
-      selSubject.disabled = true;
-      selGrade.style.opacity = "0.65";
-      selSubject.style.opacity = "0.65";
-
+  // Se tiver permissão, ajusta selects (opcional)
+  try {
+    teacherPerms = await loadTeacherPermissions();
+    if (teacherPerms?.length) {
+      populateGradeSelectFromPerms(teacherPerms);
+      await populateSubjectSelectForGradeFromPerms(selGrade.value, teacherPerms);
       await loadCalculator();
-    });
-
-    function applyLockUI() {
-      const lockOn = !!(lockedGrade && lockedSubject);
-
-      if (lockOn) {
-        selGrade.value = lockedGrade;
-        selGrade.disabled = true;
-        selGrade.style.opacity = "0.65";
-
-        selSubject.disabled = true;
-        selSubject.style.opacity = "0.65";
-      } else {
-        selGrade.disabled = false;
-        selGrade.style.opacity = "1";
-        selSubject.disabled = false;
-        selSubject.style.opacity = "1";
-      }
     }
-
-    /* ====== LOGIN / LOGOUT ====== */
-    btnLogin.addEventListener('click', () => {
-      openModal(loginModal);
-      setTimeout(() => loginUser.focus(), 50);
-    });
-
-    btnCancelLogin.addEventListener('click', () => closeModal(loginModal));
-
-    btnConfirmLogin.addEventListener('click', async () => {
-      const u = loginUser.value.trim();
-      const p = loginPass.value;
-
-      if (!u || !p) {
-        notify('Preencha usuário e senha.', "warn");
-        return;
-      }
-
-      const r = await fetch(EDGE_FN_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'login', username: u, password: p }),
-      });
-
-      const raw = await r.text();
-      let j = {};
-      try { j = JSON.parse(raw); } catch {}
-
-      if (!r.ok) {
-        notify(
-          `HTTP ${r.status}\n` +
-          `RAW:\n${raw.slice(0, 600)}\n\n` +
-          `JSON.error: ${j.error || '(sem)'}\n` +
-          `JSON.detail: ${j.detail || '(sem)'}`,
-          "error",
-          "Falha no login"
-        );
-        return;
-      }
-
-      teacherToken = j.token;
-      teacherUser = j.username;
-      localStorage.setItem('teacherToken', teacherToken);
-      localStorage.setItem('teacherUser', teacherUser);
-
-      closeModal(loginModal);
-      setTeacherMode(true);
-
-      // Se tiver permissão, ajusta selects (opcional)
-      try{
-        teacherPerms = await loadTeacherPermissions();
-        if (teacherPerms?.length) {
-          populateGradeSelectFromPerms(teacherPerms);
-          await populateSubjectSelectForGradeFromPerms(selGrade.value, teacherPerms);
-          await loadCalculator();
-        }
-      }catch(e){
-        console.log(e);
-      }
-    });
+  } catch (e) {
+    console.log(e);
+  }
+});
 
 btnLogout.addEventListener('click', async () => {
   // limpa sessão professor
@@ -728,376 +732,391 @@ btnLogout.addEventListener('click', async () => {
 });
 
 
-    /* ====== TROCAR SENHA ====== */
-    btnChangePass.addEventListener("click", () => {
-      if (!teacherToken) {
-        notify("Faça login como professor para trocar a senha.", "warn");
-        return;
-      }
-      oldPass.value = "";
-      newPass.value = "";
-      openModal(passModal);
-      setTimeout(() => oldPass.focus(), 50);
-    });
+/* ====== TROCAR SENHA ====== */
+btnChangePass.addEventListener("click", () => {
+  if (!teacherToken) {
+    notify("Faça login como professor para trocar a senha.", "warn");
+    return;
+  }
+  oldPass.value = "";
+  newPass.value = "";
+  openModal(passModal);
+  setTimeout(() => oldPass.focus(), 50);
+});
 
-    btnCancelPass.addEventListener("click", () => closeModal(passModal));
+btnCancelPass.addEventListener("click", () => closeModal(passModal));
 
-    btnConfirmPass.addEventListener("click", async () => {
-      if (!teacherToken) {
-        openModal(loginModal);
-        return;
-      }
+btnConfirmPass.addEventListener("click", async () => {
+  if (!teacherToken) {
+    openModal(loginModal);
+    return;
+  }
 
-      const old_password = oldPass.value;
-      const new_password = newPass.value;
+  const old_password = oldPass.value;
+  const new_password = newPass.value;
 
-      if (!old_password || !new_password) {
-        notify("Preencha os dois campos.", "warn");
-        return;
-      }
-      if (new_password.length < 6) {
-        notify("A nova senha precisa ter pelo menos 6 caracteres.", "warn");
-        return;
-      }
+  if (!old_password || !new_password) {
+    notify("Preencha os dois campos.", "warn");
+    return;
+  }
+  if (new_password.length < 6) {
+    notify("A nova senha precisa ter pelo menos 6 caracteres.", "warn");
+    return;
+  }
 
-      const r = await fetch(EDGE_FN_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${teacherToken}`
-        },
-        body: JSON.stringify({ action: "change_password", old_password, new_password })
-      });
+  const r = await fetch(EDGE_FN_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${teacherToken}`
+    },
+    body: JSON.stringify({ action: "change_password", old_password, new_password })
+  });
 
-      const raw = await r.text();
-      let j = {};
-      try { j = JSON.parse(raw); } catch {}
+  const raw = await r.text();
+  let j = {};
+  try { j = JSON.parse(raw); } catch { }
 
-      if (!r.ok) {
-        const msg =
-          j.error === "invalid_old_password" ? "Senha atual incorreta." :
-          j.error === "weak_password" ? "Senha nova fraca." :
+  if (!r.ok) {
+    const msg =
+      j.error === "invalid_old_password" ? "Senha atual incorreta." :
+        j.error === "weak_password" ? "Senha nova fraca." :
           (j.detail || j.error || raw || "Erro ao trocar senha.");
-        notify(msg, "error", "Falha ao trocar senha");
-        return;
-      }
+    notify(msg, "error", "Falha ao trocar senha");
+    return;
+  }
 
-      closeModal(passModal);
-      notify("Senha alterada com sucesso!", "success");
-    });
+  closeModal(passModal);
+  notify("Senha alterada com sucesso!", "success");
+});
 
-    /* ====== LINK ====== */
-    btnGrabLink.addEventListener('click', copyDisciplineLink);
+/* ====== LINK ====== */
+btnGrabLink.addEventListener('click', copyEmbedIframe);
 
-    /* ====== EDITOR ====== */
-    btnEdit.addEventListener('click', () => {
-      if (!calc) return;
+/* ====== EDITOR ====== */
+btnEdit.addEventListener('click', () => {
+  if (!calc) return;
 
-      editTitle.value = calc.title || '';
-      editScale.value = calc.schema?.scale ?? 10;
+  editTitle.value = calc.title || '';
+  editScale.value = calc.schema?.scale ?? 10;
 
-      renderEditorItems(calc.schema?.items || []);
-      openModal(editModal);
-    });
+  renderEditorItems(calc.schema?.items || []);
+  openModal(editModal);
+});
 
-    btnCloseEdit.addEventListener('click', () => closeModal(editModal));
-    btnCancelEdit.addEventListener('click', () => closeModal(editModal));
+btnCloseEdit.addEventListener('click', () => closeModal(editModal));
+btnCancelEdit.addEventListener('click', () => closeModal(editModal));
 
-    /* ====== LOAD CALCULATOR ====== */
-    async function loadCalculator() {
-      const grade = selGrade.value;
-      const subject = selSubject.value;
-      const period = Number(selPeriod.value);
+/* ====== LOAD CALCULATOR ====== */
+async function loadCalculator() {
+  const grade = selGrade.value;
+  const subject = selSubject.value;
+  const period = Number(selPeriod.value);
 
-      if (!subject) {
-        calcTitle.textContent = 'Selecione uma disciplina';
-        calcForm.innerHTML = '';
-        resultado.textContent = '';
-        return;
-      }
+  if (!subject) {
+    calcTitle.textContent = 'Selecione uma disciplina';
+    calcForm.innerHTML = '';
+    resultado.textContent = '';
+    return;
+  }
 
-      const { data, error } = await supabase
-        .from('calculators')
-        .select('title, schema')
-        .eq('grade', grade)
-        .eq('subject', subject)
-        .eq('period', period)
-        .eq('published', true)
-        .maybeSingle();
+  const { data, error } = await supabase
+    .from('calculators')
+    .select('title, schema')
+    .eq('grade', grade)
+    .eq('subject', subject)
+    .eq('period', period)
+    .eq('published', true)
+    .maybeSingle();
 
-      if (error) {
-        calcTitle.textContent = 'Erro ao carregar calculadora';
-        calcForm.innerHTML = '';
-        return;
-      }
+  if (error) {
+    calcTitle.textContent = 'Erro ao carregar calculadora';
+    calcForm.innerHTML = '';
+    return;
+  }
 
-      if (!data) {
-        calc = {
-          title: `Cálculo de Média — ${grade.toUpperCase()} / ${subject.toUpperCase()} / ${period}º`,
-          schema: { scale: 10, items: [] },
-        };
-        calcTitle.textContent = calc.title;
-        calcForm.innerHTML = `<div style="opacity:.8">Nenhuma calculadora publicada para este período.</div>`;
-        resultado.textContent = '';
-        return;
-      }
+  if (!data) {
+    calc = {
+      title: `Cálculo de Média — ${grade.toUpperCase()} / ${subject.toUpperCase()} / ${period}º`,
+      schema: { scale: 10, items: [] },
+    };
+    calcTitle.textContent = calc.title;
+    calcForm.innerHTML = `<div style="opacity:.8">Nenhuma calculadora publicada para este período.</div>`;
+    resultado.textContent = '';
+    return;
+  }
 
-      calc = data;
-      calcTitle.textContent = data.title;
-      renderForm(data.schema);
-      resultado.textContent = '';
-    }
+  calc = data;
+  calcTitle.textContent = data.title;
+  renderForm(data.schema);
+  resultado.textContent = '';
+}
 
-    selGrade.addEventListener("change", async () => {
-      if (teacherToken && teacherPerms?.length) {
-        await populateSubjectSelectForGradeFromPerms(selGrade.value, teacherPerms);
-        await loadCalculator();
-      } else {
-        await loadSubjectsForGrade();
-        await loadCalculator();
-      }
-    });
-
-    selSubject.addEventListener('change', loadCalculator);
-    selPeriod.addEventListener('change', loadCalculator);
-
-    /* ====== RENDER FORM ====== */
-    function renderForm(schema) {
-      const items = schema?.items || [];
-      calcForm.innerHTML = '';
-
-      items.forEach((it) => {
-        const label = document.createElement('label');
-        label.setAttribute('for', it.id);
-        label.textContent = it.label;
-
-        const input = document.createElement('input');
-        input.type = 'number';
-        input.id = it.id;
-        input.step = '0.05';
-        input.min = '0';
-        input.max = String(it.max ?? 10);
-        input.placeholder = `Digite a nota (máx ${it.max})`;
-        input.addEventListener('input', () => limitarNota(input));
-
-        calcForm.appendChild(label);
-        calcForm.appendChild(input);
-      });
-    }
-
-    function limitarNota(input) {
-      const max = parseFloat(input.max);
-      const min = 0;
-      const v = parseFloat(input.value);
-      if (Number.isNaN(v)) return;
-      if (v > max) input.value = String(max);
-      if (v < min) input.value = String(min);
-    }
-
-    /* ====== CALC ====== */
-    function calcularMedia() {
-      if (!calc?.schema?.items?.length) {
-        resultado.style.color = 'red';
-        resultado.textContent = 'Sem itens para calcular.';
-        return;
-      }
-
-      const schema = calc.schema;
-      const items = schema.items;
-      const scale = schema.scale ?? 10;
-
-      let sumW = 0;
-      let sum = 0;
-
-      for (const it of items) {
-        const el = document.getElementById(it.id);
-        const v = parseFloat(el.value);
-        if (Number.isNaN(v)) {
-          resultado.style.color = 'red';
-          resultado.textContent = 'Por favor, preencha todas as notas.';
-          return;
-        }
-        const max = Number(it.max ?? 10);
-        const w = Number(it.weight ?? 0);
-
-        sumW += w;
-        sum += (max > 0 ? v / max : 0) * w;
-      }
-
-      const media = sumW > 0 ? (sum / sumW) * scale : 0;
-
-      resultado.style.color = media >= 6 ? 'var(--verde)' : 'red';
-      resultado.textContent = `Média: ${media.toFixed(1)}`;
-    }
-
-    /* ====== EDITOR ====== */
-    function renderEditorItems(items) {
-      itemsList.innerHTML = '';
-      items.forEach((it, idx) => itemsList.appendChild(editorRow(it, idx)));
-    }
-
-    function editorRow(it, idx) {
-      const row = document.createElement('div');
-      row.className = 'item-row';
-
-      const id = document.createElement('input');
-      id.value = it.id ?? '';
-      id.placeholder = 'id (ex: S14)';
-
-      const label = document.createElement('input');
-      label.value = it.label ?? '';
-      label.placeholder = 'Descrição do item';
-
-      const max = document.createElement('input');
-      max.type = 'number';
-      max.step = '0.05';
-      max.value = String(it.max ?? 10);
-      max.placeholder = 'máx';
-
-      const weight = document.createElement('input');
-      weight.type = 'number';
-      weight.step = '0.05';
-      weight.value = String(it.weight ?? 0);
-      weight.placeholder = 'peso (ex: 0.02)';
-
-      const trash = document.createElement('button');
-      trash.className = 'trash';
-      trash.textContent = '🗑';
-      trash.onclick = () => row.remove();
-
-      row.appendChild(id);
-      row.appendChild(label);
-      row.appendChild(max);
-      row.appendChild(weight);
-      row.appendChild(trash);
-
-      return row;
-    }
-
-    btnAddItem.addEventListener('click', () => {
-      itemsList.appendChild(
-        editorRow({ id: '', label: '', max: 10, weight: 0 }, 999),
-      );
-    });
-
-    btnSaveCalc.addEventListener('click', async () => {
-      if (!teacherToken) {
-        notify('Você precisa estar logado como professor.', "warn");
-        return;
-      }
-
-      const grade = selGrade.value;
-      const subject = selSubject.value;
-
-      const items = [...itemsList.querySelectorAll('.item-row')].map((r) => {
-        const inputs = r.querySelectorAll('input');
-        return {
-          id: inputs[0].value.trim(),
-          label: inputs[1].value.trim(),
-          max: Number(inputs[2].value),
-          weight: Number(inputs[3].value),
-        };
-      });
-
-      if (items.some((i) => !i.id || !i.label || !(i.max > 0))) {
-        notify('Revise: todo item precisa de id, descrição e máximo > 0.', "warn");
-        return;
-      }
-
-      const payload = {
-        action: "upsert_calculator",
-        grade,
-        subject,
-        period: Number(selPeriod.value),
-        title: editTitle.value.trim() || `Calculadora — ${grade}/${subject}/${selPeriod.value}º`,
-        schema: {
-          scale: Number(editScale.value) || 10,
-          items
-        }
-      };
-
-      const r = await fetch(EDGE_FN_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${teacherToken}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const raw = await r.text();
-      console.log("RAW RESPONSE:", raw);
-
-      let j = {};
-      try { j = JSON.parse(raw); } catch {}
-
-      if (!r.ok) {
-        notify(
-          "Erro ao salvar:\n" + (j.detail || j.error || raw || "desconhecido"),
-          "error",
-          "Falha ao salvar"
-        );
-        return;
-      }
-
-      closeModal(editModal);
-      await loadCalculator();
-      notify('Calculadora publicada!', "success");
-    });
-
-    function copyDisciplineLink() {
-      const grade = selGrade.value;
-      const subject = selSubject.value;
-
-      if (!grade || !subject) {
-        notify('Selecione ano e disciplina antes de copiar o link.', "warn");
-        return;
-      }
-
-      const url = new URL(window.location.href);
-      url.searchParams.set("grade", grade);
-      url.searchParams.set("subject", subject);
-
-      navigator.clipboard.writeText(url.toString())
-        .then(() => notify("Link copiado! Compartilhe com os alunos.", "success"))
-        .catch(() => notify("Não foi possível copiar. Copie manualmente.", "warn"));
-    }
-
-    /* ====== INIT ====== */
-    setTeacherMode(!!teacherToken);
-    applyLockUI();
-    await loadSubjectsForGrade();
-
-    // se a página está “travada” por link (grade+subject), tenta selecionar subject após carregar
-    if (lockedGrade && lockedSubject) {
-      selGrade.value = lockedGrade;
-      await loadSubjectsForGrade();
-      selSubject.value = lockedSubject;
-      selSubject.disabled = true;
-      selSubject.style.opacity = "0.65";
-    }
-
+selGrade.addEventListener("change", async () => {
+  if (teacherToken && teacherPerms?.length) {
+    await populateSubjectSelectForGradeFromPerms(selGrade.value, teacherPerms);
     await loadCalculator();
+  } else {
+    await loadSubjectsForGrade();
+    await loadCalculator();
+  }
+});
 
-    // atalhos Enter no login
-    loginUser.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') btnConfirmLogin.click();
-    });
-    loginPass.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') btnConfirmLogin.click();
-    });
+selSubject.addEventListener('change', loadCalculator);
+selPeriod.addEventListener('change', loadCalculator);
 
-    // Erros globais (sem alert do browser)
-    window.addEventListener("unhandledrejection", e => {
-      const reason = e?.reason?.message || e?.reason || "Erro desconhecido (Promise)";
-      notify("ERRO JS (Promise): " + reason, "error");
-      console.error(e.reason);
-    });
+/* ====== RENDER FORM ====== */
+function renderForm(schema) {
+  const items = schema?.items || [];
+  calcForm.innerHTML = '';
 
-    window.addEventListener("error", e => {
-      notify("ERRO JS: " + (e?.message || "Erro desconhecido"), "error");
-      console.error(e);
-    });
+  items.forEach((it) => {
+    const label = document.createElement('label');
+    label.setAttribute('for', it.id);
+    label.textContent = it.label;
+
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.id = it.id;
+    input.step = '0.05';
+    input.min = '0';
+    input.max = String(it.max ?? 10);
+    input.placeholder = `Digite a nota (máx ${it.max})`;
+    input.addEventListener('input', () => limitarNota(input));
+
+    calcForm.appendChild(label);
+    calcForm.appendChild(input);
+  });
+}
+
+function limitarNota(input) {
+  const max = parseFloat(input.max);
+  const min = 0;
+  const v = parseFloat(input.value);
+  if (Number.isNaN(v)) return;
+  if (v > max) input.value = String(max);
+  if (v < min) input.value = String(min);
+}
+
+/* ====== CALC ====== */
+function calcularMedia() {
+  if (!calc?.schema?.items?.length) {
+    resultado.style.color = 'red';
+    resultado.textContent = 'Sem itens para calcular.';
+    return;
+  }
+
+  const schema = calc.schema;
+  const items = schema.items;
+  const scale = schema.scale ?? 10;
+
+  let sumW = 0;
+  let sum = 0;
+
+  for (const it of items) {
+    const el = document.getElementById(it.id);
+    const v = parseFloat(el.value);
+    if (Number.isNaN(v)) {
+      resultado.style.color = 'red';
+      resultado.textContent = 'Por favor, preencha todas as notas.';
+      return;
+    }
+    const max = Number(it.max ?? 10);
+    const w = Number(it.weight ?? 0);
+
+    sumW += w;
+    sum += (max > 0 ? v / max : 0) * w;
+  }
+
+  const media = sumW > 0 ? (sum / sumW) * scale : 0;
+
+  resultado.style.color = media >= 6 ? 'var(--verde)' : 'red';
+  resultado.textContent = `Média: ${media.toFixed(1)}`;
+}
+
+/* ====== EDITOR ====== */
+function renderEditorItems(items) {
+  itemsList.innerHTML = '';
+  items.forEach((it, idx) => itemsList.appendChild(editorRow(it, idx)));
+}
+
+function editorRow(it, idx) {
+  const row = document.createElement('div');
+  row.className = 'item-row';
+
+  const id = document.createElement('input');
+  id.value = it.id ?? '';
+  id.placeholder = 'id (ex: S14)';
+
+  const label = document.createElement('input');
+  label.value = it.label ?? '';
+  label.placeholder = 'Descrição do item';
+
+  const max = document.createElement('input');
+  max.type = 'number';
+  max.step = '0.05';
+  max.value = String(it.max ?? 10);
+  max.placeholder = 'máx';
+
+  const weight = document.createElement('input');
+  weight.type = 'number';
+  weight.step = '0.05';
+  weight.value = String(it.weight ?? 0);
+  weight.placeholder = 'peso (ex: 0.02)';
+
+  const trash = document.createElement('button');
+  trash.className = 'trash';
+  trash.textContent = '🗑';
+  trash.onclick = () => row.remove();
+
+  row.appendChild(id);
+  row.appendChild(label);
+  row.appendChild(max);
+  row.appendChild(weight);
+  row.appendChild(trash);
+
+  return row;
+}
+
+btnAddItem.addEventListener('click', () => {
+  itemsList.appendChild(
+    editorRow({ id: '', label: '', max: 10, weight: 0 }, 999),
+  );
+});
+
+btnSaveCalc.addEventListener('click', async () => {
+  if (!teacherToken) {
+    notify('Você precisa estar logado como professor.', "warn");
+    return;
+  }
+
+  const grade = selGrade.value;
+  const subject = selSubject.value;
+
+  const items = [...itemsList.querySelectorAll('.item-row')].map((r) => {
+    const inputs = r.querySelectorAll('input');
+    return {
+      id: inputs[0].value.trim(),
+      label: inputs[1].value.trim(),
+      max: Number(inputs[2].value),
+      weight: Number(inputs[3].value),
+    };
+  });
+
+  if (items.some((i) => !i.id || !i.label || !(i.max > 0))) {
+    notify('Revise: todo item precisa de id, descrição e máximo > 0.', "warn");
+    return;
+  }
+
+  const payload = {
+    action: "upsert_calculator",
+    grade,
+    subject,
+    period: Number(selPeriod.value),
+    title: editTitle.value.trim() || `Calculadora — ${grade}/${subject}/${selPeriod.value}º`,
+    schema: {
+      scale: Number(editScale.value) || 10,
+      items
+    }
+  };
+
+  const r = await fetch(EDGE_FN_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${teacherToken}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const raw = await r.text();
+  console.log("RAW RESPONSE:", raw);
+
+  let j = {};
+  try { j = JSON.parse(raw); } catch { }
+
+  if (!r.ok) {
+    notify(
+      "Erro ao salvar:\n" + (j.detail || j.error || raw || "desconhecido"),
+      "error",
+      "Falha ao salvar"
+    );
+    return;
+  }
+
+  closeModal(editModal);
+  await loadCalculator();
+  notify('Calculadora publicada!', "success");
+});
+
+function copyEmbedIframe() {
+  const grade = selGrade.value;
+  const subject = selSubject.value;
+
+  if (!grade || !subject) {
+    alert("Selecione ano e disciplina antes de copiar.");
+    return;
+  }
+
+  // URL “travada” (aluno)
+  const url = new URL("https://glowing-maamoul-424e89.netlify.app"); // https://glowing-maamoul-424e89.netlify.app
+  url.searchParams.set("grade", grade);
+  url.searchParams.set("subject", subject);
+
+  // Código do iframe (você pode ajustar height)
+  const iframeCode =
+    `<iframe
+  src="${url.toString()}"
+  style="width:100%; height:720px; border:0;"
+  loading="lazy"
+></iframe>`;
+
+  // 1) tenta Clipboard API (pode falhar no Canvas)
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(iframeCode)
+      .then(() => alert("✅ Código do iframe copiado! Cole no Canvas (HTML)."))
+      .catch(() => openCopyModal(iframeCode)); // fallback
+  } else {
+    openCopyModal(iframeCode); // fallback
+  }
+}
+
+
+/* ====== INIT ====== */
+setTeacherMode(!!teacherToken);
+applyLockUI();
+await loadSubjectsForGrade();
+
+// se a página está “travada” por link (grade+subject), tenta selecionar subject após carregar
+if (lockedGrade && lockedSubject) {
+  selGrade.value = lockedGrade;
+  await loadSubjectsForGrade();
+  selSubject.value = lockedSubject;
+  selSubject.disabled = true;
+  selSubject.style.opacity = "0.65";
+}
+
+await loadCalculator();
+
+// atalhos Enter no login
+loginUser.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') btnConfirmLogin.click();
+});
+loginPass.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') btnConfirmLogin.click();
+});
+
+// Erros globais (sem alert do browser)
+window.addEventListener("unhandledrejection", e => {
+  const reason = e?.reason?.message || e?.reason || "Erro desconhecido (Promise)";
+  notify("ERRO JS (Promise): " + reason, "error");
+  console.error(e.reason);
+});
+
+window.addEventListener("error", e => {
+  notify("ERRO JS: " + (e?.message || "Erro desconhecido"), "error");
+  console.error(e);
+});
   </script>
 </body>
 </html>
