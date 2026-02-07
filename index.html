@@ -402,6 +402,26 @@
     </div>
   </div>
 
+  <div id="copyModal" class="modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>Cole no Canvas</h3>
+        <button class="x" id="btnCloseCopy">✕</button>
+      </div>
+  
+      <p class="hint" style="margin:8px 0 10px;">
+        Se o Canvas bloquear o “copiar”, use <b>Ctrl+C</b> e depois cole no editor HTML.
+      </p>
+  
+      <textarea id="copyBox" style="width:100%; height:180px; border-radius:12px; padding:10px;"></textarea>
+  
+      <div class="modal-actions">
+        <button class="btn-capsule" id="btnTryCopy">Tentar copiar</button>
+        <button class="btn-capsule gray" id="btnCloseCopy2">Fechar</button>
+      </div>
+    </div>
+  </div>
+
   <!-- IMPORTS + APP (MODULE) -->
 
   <script type=module>
@@ -1080,6 +1100,38 @@ function copyEmbedIframe() {
     openCopyModal(iframeCode); // fallback
   }
 }
+    const copyModal = document.getElementById("copyModal");
+const copyBox   = document.getElementById("copyBox");
+const btnCloseCopy  = document.getElementById("btnCloseCopy");
+const btnCloseCopy2 = document.getElementById("btnCloseCopy2");
+const btnTryCopy = document.getElementById("btnTryCopy");
+
+btnCloseCopy.addEventListener("click", () => closeModal(copyModal));
+btnCloseCopy2.addEventListener("click", () => closeModal(copyModal));
+
+function openCopyModal(text) {
+  copyBox.value = text;
+  openModal(copyModal);
+
+  setTimeout(() => {
+    copyBox.focus();
+    copyBox.select();
+  }, 50);
+}
+
+btnTryCopy.addEventListener("click", () => {
+  copyBox.focus();
+  copyBox.select();
+
+  // fallback clássico (funciona em muitos sandboxes)
+  try {
+    const ok = document.execCommand("copy");
+    alert(ok ? "✅ Copiado!" : "Selecione e use Ctrl+C.");
+  } catch {
+    alert("Selecione e use Ctrl+C.");
+  }
+});
+
 
 
 /* ====== INIT ====== */
@@ -1120,3 +1172,4 @@ window.addEventListener("error", e => {
   </script>
 </body>
 </html>
+
